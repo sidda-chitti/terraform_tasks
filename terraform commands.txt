@@ -1,0 +1,70 @@
+
+terraform init:
+Purpose: Initializes a Terraform working directory by downloading and configuring providers (plugins) specified in the configuration files (*.tf).
+Usage: terraform init
+
+terraform fmt:
+Purpose: Rewrites Terraform configuration files to a canonical format and style.
+Usage: terraform fmt
+
+terraform validate:
+Purpose: Validates the configuration files for syntax errors and potential issues.
+Usage: terraform validate
+
+terraform plan:
+Purpose: Generates an execution plan showing what Terraform will do when you apply your configuration.
+Usage: terraform plan
+
+terraform apply:
+Purpose: Applies the changes required to reach the desired state of the configuration.
+Usage: terraform apply
+
+terraform show :
+purpose: it shows all the resources that are created
+usage: terraform show
+
+terraform destroy:
+Purpose: Destroys all resources managed by Terraform for a particular configuration.
+Usage: terraform destroy
+
+terraform output:
+Purpose: Prints outputs from Terraform state or module outputs.
+Usage: terraform output
+
+
+terraform state:
+
+Purpose: Interacts with Terraform state (e.g., list resources in the state, move resources to a new state file).
+Usage: terraform state <subcommand>
+Examples: terraform state list, terraform state mv
+
+terraform import:
+
+Purpose: Imports existing infrastructure into your Terraform state.
+Usage: terraform import <resource_type>.<resource_name> <existing_id>
+Example: terraform import aws_instance.my_instance i-abcd1234
+
+terraform workspace:
+
+Purpose: Manages Terraform workspaces (isolated working directories).
+Usage: terraform workspace <subcommand>
+Examples: terraform workspace new, terraform workspace select, terraform workspace show, terraform workspace delete.
+
+terraform refresh:
+
+purpose: Updates the state file against real resources in the cloud to ensure Terraform is tracking the current state.
+usage: terraform refresh
+
+terraform graph:
+Generates a visual representation of the Terraform resource graph.
+
+terraform state pull:
+
+Fetches the current state from remote storage and outputs it to stdout.
+
+terraform state push:
+
+Updates remote state from a local state file.
+
+These commands are essential for initializing, planning, applying changes, destroying infrastructure, managing state, validating configurations, formatting code, and managing workspaces in Terraform. Mastering these commands will enable you to effectively use Terraform for provisioning and managing cloud resources.
+
