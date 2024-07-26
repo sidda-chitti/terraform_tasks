@@ -1,0 +1,285 @@
+Installation
+
+installation terraform on windows
+
+step1: goto terraform install website
+step2: select windows under the operating systems
+step3: download the zip file
+step4: extract the dowwnloaded zip file into a folder
+step5: add the folder location of terraform.exe in the path enironment variable
+step6: verify, it is installed or not by using the following commands
+
+commands:
+terraform
+terraform version or terraform -v
+terraform -help (for more details about the commands)
+-------------------------------------------
+
+installation of terraform on linux machine (virtual)
+step1: connect to our linux 
+step2: goto terraform installation website
+step3: select linux under the operating system
+step4: select the linux distribution
+step5: use the corresponding commands and verify
+
+commads:
+terraform
+terraform version or terraform -v
+terraform -help
+
+https://developer.hashicorp.com/terraform/install 
+
+-------------------------------------------
+
+create a project 
+
+step1: create a folder for our terraform project (to store files locally)
+step2: now for further steps, you can use any text editor or IDE like vs code
+step3: inside this folder, create a file named main.if
+it is not mandatory to name the terraform configuration file main.tf while, main.tf is a common convention, can make it easier for developers to navigate the code 
+this file will contains our terraform configuration
+-------------------------------------
+
+decide provider and mention in config file
+
+step1: if we are using AWS provider, login into your AWS account ore create new one
+step2: In our main.tf file add a provider block for our aws or we can declare the providers in a separate file provider.tf
+
+
+To authenticate terraform with AWS account, you will need to set up your AWS credentials
+
+creating security credentials on AWS
+
+step1: login to AWS account and goto IAM
+step2: create user or select existing user 
+step3: add required permission to the user
+step4: go to security credentials and access keys section then click on create access key
+step5: A new access key ID and secret access key will be generated. fill the credentials in config file
+step6: save file and run command in terminal "terraform validate" in the folder containing the config file
+
+terraform validate -json ....produce output in a machine-readable JSON format
+
+Add infrastructure details in config file
+
+step1: get a sample config for your provider from terraform examples
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs 
+
+step2: add the required details in the config file
+step3: run terraform validate
+for a new project or new config run this command after terraform init
+
+# main.tf
+provider "aws" {
+  region     = “us-east-1”
+  access_key = “your_access_key”
+  secret_key = “your_secret_key”
+}
+
+
+# resources
+# creating an EC2 instance 
+
+resource "aws_instance" "my_virtual_machine" {
+  ami = "ami-07caf09b362be10b8"  
+  instance_type = "t2.micro"
+  key_name = "  " # optional
+  subnet_id = "  " # optional
+  tags = {
+    Name = "vm1"
+  }
+}
+
+-----------------------
+terraform init command
+open your terminal or command prompt and navigate to our project directory
+run command "terraform init"
+
+run "terraform plan"
+run "terraform apply"
+srep1: when we are ready to create real infrastructure run terraform apply, confirm bt step2: typing "yes" when prompted
+step3: check the infra created in aws account or not
+step4: try to change parameters in config file main.tf and run command the following commands
+terraform refresh (optional)
+terraform plan
+terraform apply
+
+verify manually that required resiurces are cerated or not as expected
+or use command "terraform show"
+------------------------------------
+
+deleting the resources:
+Step1: run command "terraform destroy" confirm by typing "yes"
+step2: check aws console or use "terraform show"  command
+
+---------------------------------
+
+creating variables - variables.tf | terraform.tfvars
+
+we can use variables to reuse values in terraform congif file
+
+variables.tf
+in this file, we declare input variables that can be used throughout the project
+
+variable "instance_type" {
+  description = "instance type for resources"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "access_key" {
+  description = "accesskey for aws"
+  type        = string
+}
+
+variable "secret_key" {
+  description = "secret key for aws"
+  type        = string
+
+}
+
+terraform.tfvars
+in this file, we set the actual values for our variables which are defined in variables.tf file.
+
+access_key = "accesskey"
+secret_key = "secretkey"
+
+
+main.tf
+
+​​provider "aws" {
+  region     = "us-east-1"
+  access_key = var.access_key
+  secret_key = var.secret_key
+}
+
+resource "aws_instance" "my_first_vm" {
+  ami           = "ami"
+  instance_type = var.instance_type
+  tags = {
+    Name = "My_First_LinuxVM"
+  }
+}
+
+
+creating terraform output - outputs.tf
+
+in this file, we define output alues that can be referenced by other modules or external systems
+
+#sample code for getting ip and id of instance
+
+output "intance_ip" {
+  description = "ip of the aws vm created"
+  value       = aws_instance.my_first_vm.public_ip
+
+}
+
+output "intance_id" {
+  description = "id of the aws vm created"
+  value       = aws_instance.my_first_vm.id
+
+}
+
+------------------------------------------------
+creating modules
+
+modules: organize our code into reusable modules
+
+step1: in project root folder create a sub-folder "modules"
+step2: inside modules folder create folder like vpc or compute as for our requirements
+step3: create main.tf file also can create variables.tf, outputs.tf files
+step4: in your main terraform comfiguration, we can call our modules
+
+#sample block
+
+module "my_ec2" {
+  source        = "./modules/compute"
+  instance_type = "t2.micro"
+}
+
+# outputs.tf
+
+output "public_ip" {
+  value = module.my_ec2.public_ip
+}
+
+output "instance_id" {
+  value = module.my_ec2.instance_id
+}
+--------------------------------------------
+
+creating terraform environments
+
+In general we have to deploy and manage infrstructure in multiple env like dev, prod, qa, staging....
+we can create an environments folder under the project folder. inside this folder we can create env specific configurations.
+
+create sub-folders in root folder like dev, qa
+
+# main.tf
+
+provider "aws" {
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+
+
+# dev main.tf
+
+resource "aws_instance" "my_instance" {
+  ami           = "ami"
+  instance_type = var.instance_type
+  tags = {
+    Name = "dev_instance"
+  }
+}
+
+# dev variables.tf
+
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t2.micro"
+}
+
+-----------------------------------------
+creating terraform workspaces
+
+step1: create new project with main.tf and also create variables.tf and terraform.tfvars files too
+step2: run command terraform.init
+step3: create new workspaces with the following commands
+
+terraform workspace list - default workspace is always cerated
+terraform workspace new dev - to create workspace
+terraform workspace new staging 
+terraform workspace new production
+terraform workspace select dev - to switch workspace
+terraform workspace show 
+
+# Dev-specific resources
+
+resource "aws_instance" "dev_instance" {
+  count         = terraform.workspace == "dev" ? 1 : 0
+  ami           = "ami"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "dev_instance1"
+  }
+  # Other dev-specific settings...
+}
+
+
+# QA-specific resources
+
+resource "aws_instance" "qa_instance" {
+  count         = terraform.workspace == "qa" ? 1 : 0
+  ami           = "ami"
+  instance_type = "t2.micro"
+  tags = {
+    Name = "qa_instance1"
+  }
+  # Other QA-specific settings...
+}
+
+workspaces are created as per our requirements
+------------------------------------------------
